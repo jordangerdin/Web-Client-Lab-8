@@ -10,6 +10,15 @@
     opacity: 0;
 }
 
+.present-true {
+    color: gray;
+    font-style: italic;
+}
+
+.present-false {
+    font-weight: bold;
+}
+
 #student-table {
     max-height: 500px;
     overflow: scroll;

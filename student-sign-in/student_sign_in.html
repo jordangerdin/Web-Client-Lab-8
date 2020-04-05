@@ -11,25 +11,27 @@
 
 <body>
     <div id="app">
-
-        <div class="alert alert-danger" v-show="errors.length">
-            <li v-for="error in errors">{{ error }}</li>
+        <!-- Alert box for errors -->
+        <div class="alert alert-danger" v-show="errors.length > 0">
+            <li v-for="error in errors">{{error}}</li>
         </div>
 
+        <!-- Card box for student entry form -->
         <div class="card add-student m-2 p-2">
-                <h4 class="card-title">Add new student</h4>
+            <h4 class="card-title">Add new student</h4>
 
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input id="name" class="form-control" v-model.trim="newStudentName">
-                </div>
-                <div class="form-group">
-                    <label for="starID">Star ID</label>
-                    <input id="starID" class="form-control" v-model.trim="newStarID">
-                </div>
-                <button class="btn btn-primary" v-on:click="addStudent">Add</button>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input id="name" class="form-control" v-model.trim="newStudentName">
+            </div>
+            <div class="form-group">
+                <label for="starID">Star ID</label>
+                <input id="starID" class="form-control" v-model.trim="newStarID">
+            </div>
+            <button class="btn btn-primary" v-on:click.prevent="addStudent">Add</button>
         </div>
 
+        <!-- Card box for student list, present checkbox -->
         <div class="card student-list m-2 p-2">
             <h4 class="card-title">Students</h4>
             <div id="student-table">
@@ -39,44 +41,56 @@
                         <th>StarID</th>
                         <th>Present?</th>
                     </tr>
-                    <tr v-for="student in students" v-bind:class="{ present: student.present, absent: !student.present }">
-                        <td>{{ student.name }}</td>
-                        <td>{{ student.starID }}</td>
-                        <td> <input type="checkbox" v-model="student.present" v-on:change="checked(student)"></td>
-                    </tr>
+                     <tr v-for="student in students" v-bind:class="'present-'+student.present">
+                         <td>{{student.name}}</td>
+                         <td>{{student.starID}}</td>
+                         <td> <input type="checkbox" v-model="student.present" v-on:change="checked(student)"></td>
+                     </tr>
                 </table>
             </div>
         </div>
 
+        <!-- Welcome message alert box-->
         <transition name="fade">
             <div class="alert alert-success" v-if="seeMessage">{{message}} {{mostRecentSignIn}}</div>
         </transition>
     </div>
 
     <script>
-
         let app = new Vue({
             el: "#app",
             data: {
                 newStudentName: '',
                 newStarID: '',
-                students: [{ name: "example", starID: "ab1234cd", present: true }],
-                mostRecentSignIn: '',
-                message: '',
-                seeMessage: false,
-                errors: []
+                students: [ 
+                    {name: 'A. Student', starID: 'aa1234aa', present: false},
+                    {name: 'B. Student', starID: 'bb1234bb', present: false}, 
+                 ],
+                 errors: [],
+                 message: '',
+                 mostRecentSignIn: '',
+                 seeMessage: false,
             },
             methods: {
+                // Adding new students, minor validation for empty fields
+                // Sorts list of students alphabetically
                 addStudent() {
                     this.errors = []
                     if (this.newStudentName && this.newStarID) {
-                        let student = { name: this.newStudentName, starID: this.newStarID, present: false }
+                        let student = { name: this.newStudentName, starID: this.newStarID }
                         this.students.push(student)
-                        this.students.sort(function (s1, s2) { return s1.name > s2.name ? 1 : -1 })
+                        this.students.sort(function (s1, s2) {
+                            return s1.name.toLowerCase() > s2.name.toLowerCase() ? 1 : -1
+                        })
                         this.newStudentName = ''
                         this.newStarID = ''
                     } else {
-                        this.errors.push('Name and StarID are required.')
+                        if (!this.newStudentName) {
+                            this.errors.push('Name is a required field.')
+                        }
+                        if (!this.newStarID) {
+                            this.errors.push('StarID is a required field.')
+                        }
                     }
                 },
                 checked(student) {
@@ -84,13 +98,13 @@
                     this.mostRecentSignIn = student.name
                     this.showMessage()
                 },
-                showMessage() {
+                showMessage() {     // Display and fadeout for most recent welcome message
                     this.seeMessage = true
-                    setTimeout(() => {
+                    setTimeout( () => {
                         this.seeMessage = false
                     }, 3000)
                 }
-            },
+            }
         })
 
     </script>
